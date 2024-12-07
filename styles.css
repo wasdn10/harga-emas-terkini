@@ -6,10 +6,10 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+    font-family: 'Arial', sans-serif;
     background-color: #f9f9f9;
     color: #333;
+    line-height: 1.6;
 }
 
 a {
@@ -21,43 +21,64 @@ a:hover {
     text-decoration: underline;
 }
 
-header, footer {
+/* Header Styles */
+header {
     background-color: #4caf50;
     color: white;
+    padding: 20px 0;
     text-align: center;
-    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-/* Header Styles */
 header .logo h1 {
     font-size: 24px;
 }
 
+header nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+header nav .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+header nav .nav-links li {
+    display: inline;
+}
+
 header nav button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
+    background-color: #fff;
+    color: #4caf50;
+    border: 2px solid #4caf50;
+    padding: 5px 10px;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
 }
 
 header nav button:hover {
-    transform: scale(1.1);
+    background-color: #4caf50;
+    color: #fff;
 }
 
 /* Sidebar (Settings Panel) */
 aside#settings-panel {
     position: fixed;
     top: 0;
-    right: -300px;
-    width: 300px;
+    right: -350px;
+    width: 350px;
     height: 100%;
     background-color: #fff;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: -3px 0 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    transition: right 0.3s ease-in-out;
-    overflow-y: auto;
+    transition: right 0.3s ease;
     z-index: 1000;
 }
 
@@ -65,25 +86,41 @@ aside#settings-panel[aria-hidden="false"] {
     right: 0;
 }
 
-aside#settings-panel h2 {
+aside h2 {
     color: #4caf50;
     font-size: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
-aside#settings-panel form label {
+aside form label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     font-weight: bold;
 }
 
-aside#settings-panel form input,
-aside#settings-panel form select {
+aside form input,
+aside form select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+
+aside form button {
+    display: block;
+    width: 100%;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+aside form button:hover {
+    background-color: #45a049;
 }
 
 /* Main Layout */
@@ -94,11 +131,11 @@ main {
 }
 
 section {
-    background: #fff;
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 20px;
 }
 
 section h2 {
@@ -107,11 +144,104 @@ section h2 {
     margin-bottom: 15px;
 }
 
-/* Historical Table Styles */
+/* Live Price Section */
+#live-price {
+    text-align: center;
+}
+
+#live-price #gold-price {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+#live-price #last-updated {
+    font-size: 14px;
+    color: #777;
+}
+
+/* Chart Section */
+#chart canvas {
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+#chart-controls {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#chart-controls button {
+    margin: 0 5px;
+    padding: 10px 15px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#chart-controls button:hover {
+    background-color: #45a049;
+}
+
+#chart-controls .active {
+    background-color: #333;
+}
+
+/* Technical Indicators Section */
+#technical-analysis ul {
+    list-style: none;
+    padding: 0;
+}
+
+#technical-analysis ul li {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+#technical-analysis form {
+    margin-top: 20px;
+}
+
+#technical-analysis form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#technical-analysis form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* Market News Section */
+#news {
+    padding: 20px;
+}
+
+#news ul {
+    list-style: none;
+    padding: 0;
+}
+
+#news ul li {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 5px solid #4caf50;
+}
+
+/* Historical Data Section */
 #historical-data table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
 }
 
 #historical-data table th,
@@ -124,28 +254,34 @@ section h2 {
 #historical-data table th {
     background-color: #4caf50;
     color: white;
+    font-weight: bold;
 }
 
-/* Chart Styles */
-#chart canvas {
-    display: block;
-    max-width: 100%;
-    margin: 0 auto;
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #4caf50;
+    color: white;
+    border-top: 5px solid #333;
 }
 
-/* Footer Styles */
-footer p {
-    font-size: 14px;
-    margin: 0;
-}
-
-/* Responsive Styles */
+/* Responsive Design */
 @media (max-width: 768px) {
-    main {
-        padding: 10px;
+    header .nav-links {
+        flex-direction: column;
+        gap: 10px;
     }
 
     aside#settings-panel {
         width: 100%;
+    }
+
+    main {
+        padding: 10px;
+    }
+
+    section {
+        padding: 15px;
     }
 }
