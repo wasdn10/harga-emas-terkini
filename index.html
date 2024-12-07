@@ -3,148 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Comprehensive Gold Price Analyzer with Real-Time Updates, Historical Data, and Technical Analysis">
-    <meta name="keywords" content="Gold Price, Technical Analysis, Historical Data, RSI, SMA, MACD, Financial News">
+    <meta name="description" content="Gold Price Dashboard with Real-Time Updates and Advanced Analysis">
+    <meta name="keywords" content="Gold Price, Real-Time Data, Technical Analysis, Charts, News">
     <meta name="author" content="Your Name">
-    <title>Gold Price Analyzer | Advanced Insights</title>
+    <title>Gold Price Dashboard</title>
     <link rel="stylesheet" href="styles.css">
     <script defer src="settings.js"></script>
     <script defer src="livePrices.js"></script>
-    <script defer src="indicators.js"></script>
     <script defer src="chart.js"></script>
 </head>
 <body>
-    <!-- HEADER SECTION -->
-    <header>
-        <div class="container">
-            <div class="logo">
-                <h1>Gold Price Analyzer</h1>
-                <p>Your Trusted Resource for Real-Time Gold Insights</p>
-            </div>
+    <!-- HEADER -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Gold Price Dashboard</h1>
+            <p>Track Live Prices | Analyze Trends | Stay Updated</p>
             <nav>
                 <ul class="nav-links">
                     <li><a href="#live-price">Live Price</a></li>
-                    <li><a href="#historical-data">Historical Data</a></li>
-                    <li><a href="#technical-analysis">Technical Analysis</a></li>
-                    <li><a href="#market-trends">Market Trends</a></li>
-                    <li><a href="#educational-resources">Learn</a></li>
-                    <li><a href="#settings-panel">Settings</a></li>
+                    <li><a href="#charts">Charts</a></li>
+                    <li><a href="#news">News</a></li>
+                    <li><a href="#settings">Settings</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- SETTINGS SIDEBAR -->
-    <aside id="settings-panel" aria-hidden="true">
-        <h2>Settings</h2>
-        <form>
-            <label for="theme-toggle">Theme:</label>
-            <input type="checkbox" id="theme-toggle" />
-            <label for="currency-selector">Currency:</label>
-            <select id="currency-selector">
-                <option value="USD" selected>USD</option>
-                <option value="MYR">MYR</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-            </select>
-            <label for="refresh-rate">Refresh Rate (min):</label>
-            <input type="number" id="refresh-rate" min="1" max="60" value="5" />
-            <button type="button" id="save-settings">Save</button>
-            <button type="button" id="clear-logs">Clear Logs</button>
-        </form>
-    </aside>
-
     <!-- MAIN CONTENT -->
     <main>
-        <!-- LIVE PRICE SECTION -->
-        <section id="live-price" class="card">
+        <!-- Live Price Section -->
+        <section id="live-price" class="section">
             <h2>Live Gold Price</h2>
-            <div class="price-box">
-                <p>Current Price: <span id="gold-price">Loading...</span></p>
+            <div class="card">
+                <div class="price">
+                    <p>Current Price: <span id="gold-price">Loading...</span></p>
+                </div>
                 <p id="last-updated">Last Updated: --</p>
             </div>
         </section>
 
-        <!-- HISTORICAL DATA SECTION -->
-        <section id="historical-data" class="card">
-            <h2>Historical Gold Prices</h2>
-            <canvas id="price-chart"></canvas>
-            <div id="chart-controls">
-                <button data-period="7">Last 7 Days</button>
-                <button data-period="30" class="active">Last 30 Days</button>
-                <button data-period="365">Last 1 Year</button>
-                <button id="export-csv">Export Data</button>
+        <!-- Charts Section -->
+        <section id="charts" class="section">
+            <h2>Gold Price Trends</h2>
+            <div class="chart-container">
+                <canvas id="gold-chart"></canvas>
+                <div class="chart-controls">
+                    <button data-period="7">Last 7 Days</button>
+                    <button data-period="30">Last 30 Days</button>
+                    <button data-period="365">Last 1 Year</button>
+                </div>
             </div>
         </section>
 
-        <!-- TECHNICAL ANALYSIS SECTION -->
-        <section id="technical-analysis" class="card">
-            <h2>Technical Analysis</h2>
-            <ul>
-                <li>RSI: <span id="rsi-value">Loading...</span></li>
-                <li>MACD: <span id="macd-value">Loading...</span></li>
-                <li>SMA: <span id="sma-value">Loading...</span></li>
-            </ul>
-            <form id="indicator-settings">
-                <label>
-                    <input type="checkbox" id="rsi-toggle" checked> Show RSI
-                </label>
-                <label for="rsi-period">RSI Period:</label>
-                <input type="number" id="rsi-period" value="14" min="1" max="50">
-                <label>
-                    <input type="checkbox" id="sma-toggle" checked> Show SMA
-                </label>
-                <label for="sma-period">SMA Period:</label>
-                <input type="number" id="sma-period" value="30" min="1" max="365">
-                <label>
-                    <input type="checkbox" id="macd-toggle" checked> Show MACD
-                </label>
+        <!-- News Section -->
+        <section id="news" class="section">
+            <h2>Latest Market News</h2>
+            <div class="news-container">
+                <ul id="news-list">
+                    <li>Loading news...</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <h2>Settings</h2>
+            <form class="settings-form">
+                <label for="theme-selector">Theme</label>
+                <select id="theme-selector">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+
+                <label for="currency-selector">Currency</label>
+                <select id="currency-selector">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="MYR">MYR</option>
+                </select>
+
+                <label for="refresh-rate">Refresh Rate (min)</label>
+                <input type="number" id="refresh-rate" min="1" max="60" value="5">
+
+                <button type="button" id="save-settings">Save Settings</button>
             </form>
-        </section>
-
-        <!-- MARKET TRENDS SECTION -->
-        <section id="market-trends" class="card">
-            <h2>Market Trends</h2>
-            <div id="trend-charts">
-                <div class="trend-box">
-                    <h3>Gold vs. USD</h3>
-                    <canvas id="gold-usd-chart"></canvas>
-                </div>
-                <div class="trend-box">
-                    <h3>Gold vs. S&P 500</h3>
-                    <canvas id="gold-sp500-chart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- EDUCATIONAL RESOURCES SECTION -->
-        <section id="educational-resources" class="card">
-            <h2>Learn About Gold Investment</h2>
-            <ul class="resources">
-                <li><a href="https://example.com/basics-of-gold-trading" target="_blank">Basics of Gold Trading</a></li>
-                <li><a href="https://example.com/technical-indicators-guide" target="_blank">Understanding Technical Indicators</a></li>
-                <li><a href="https://example.com/historical-gold-trends" target="_blank">Historical Gold Price Trends</a></li>
-            </ul>
-        </section>
-
-        <!-- FINANCIAL NEWS SECTION -->
-        <section id="financial-news" class="card">
-            <h2>Latest Financial News</h2>
-            <ul id="news-list">
-                <li>Loading financial news...</li>
-            </ul>
         </section>
     </main>
 
     <!-- FOOTER -->
     <footer>
-        <div class="container">
-            <p>&copy; 2024 Gold Price Analyzer. All Rights Reserved.</p>
-            <p>
-                <a href="#privacy-policy">Privacy Policy</a> |
-                <a href="#terms-of-service">Terms of Service</a>
-            </p>
-        </div>
+        <p>&copy; 2024 Gold Price Dashboard. All Rights Reserved.</p>
+        <p>
+            <a href="#privacy-policy">Privacy Policy</a> |
+            <a href="#terms-of-service">Terms of Service</a>
+        </p>
     </footer>
 
     <!-- ALERTS -->
