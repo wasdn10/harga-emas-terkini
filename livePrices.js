@@ -1,125 +1,138 @@
-// livePrice.js - Fetch Live Gold Price and Convert to MYR (250 Lines)
+// livePrice.js - Fetch Live Gold Price with Advanced Features
 
 // DOM Elements
 const goldPriceElement = document.getElementById("gold-price");
-const alertsContainer = document.getElementById("alerts-container");
+const lastUpdatedElement = document.getElementById("last-updated");
 
-// Logging Utility
-function logAlert(message, type = "info") {
-    const alertEntry = document.createElement("div");
-    alertEntry.className = `alert-${type}`;
-    alertEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-    alertsContainer.appendChild(alertEntry);
-    alertsContainer.scrollTop = alertsContainer.scrollHeight;
+// API Configuration
+const SCRAPE_URL = "https://example-trading-website.com"; // Replace with the actual website URL
+const CURRENCY_API_URL = "https://api.exchangerate-api.com/v4/latest/USD"; // Free currency conversion API
+const DEFAULT_CURRENCY = "USD";
 
-    // Auto-remove alerts after 10 seconds
-    setTimeout(() => alertEntry.remove(), 10000);
-}
-
-// Fetch Gold Price from a Website (Scraping)
-async function fetchGoldPrice() {
-    logAlert("Fetching gold price...");
+// Fetch Gold Price from Target Website (Web Scraping)
+async function scrapeGoldPrice() {
     try {
-        const response = await fetch("https://www.example.com/gold-price"); // Replace with the actual target URL
-        if (!response.ok) throw new Error("Failed to fetch gold price data.");
+        const response = await fetch(SCRAPE_URL);
+        if (!response.ok) throw new Error("Failed to fetch gold price from the target website.");
 
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
 
-        // Scrape the gold price (adjust the selector for the target website)
-        const priceElement = doc.querySelector(".gold-price"); // Example class
-        const priceInUSD = parseFloat(priceElement.textContent.replace(/[^0-9.]/g, ""));
-        if (isNaN(priceInUSD)) throw new Error("Invalid price format.");
+        // Scrape the gold price using a specific CSS selector
+        const goldPrice = parseFloat(doc.querySelector(".gold-price-selector").textContent.trim());
+        if (isNaN(goldPrice)) throw new Error("Gold price data is invalid or unavailable.");
 
-        logAlert(`Fetched gold price: ${priceInUSD.toFixed(2)} USD/oz`, "success");
-        return priceInUSD;
+        logMessage(`Gold price fetched successfully: ${goldPrice} USD/oz`, "success");
+        return goldPrice;
     } catch (error) {
-        logAlert(`Error fetching gold price: ${error.message}`, "error");
+        logMessage(`Error scraping gold price: ${error.message}`, "error");
         return null;
     }
 }
 
-// Fetch Exchange Rate for MYR
-async function fetchExchangeRate() {
-    logAlert("Fetching USD to MYR exchange rate...");
+// Fetch Exchange Rate for Currency Conversion
+async function fetchExchangeRate(base = "USD", target = DEFAULT_CURRENCY) {
     try {
-        const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD"); // Replace with a free currency API
+        const response = await fetch(CURRENCY_API_URL);
         if (!response.ok) throw new Error("Failed to fetch exchange rate data.");
 
         const data = await response.json();
-        const rateToMYR = data.rates.MYR;
-        if (!rateToMYR) throw new Error("MYR exchange rate unavailable.");
+        const rate = data.rates[target];
+        if (!rate) throw new Error(`Exchange rate for ${target} is unavailable.`);
 
-        logAlert(`Fetched exchange rate: 1 USD = ${rateToMYR.toFixed(2)} MYR`, "success");
-        return rateToMYR;
+        logMessage(`Exchange rate fetched: 1 ${base} = ${rate.toFixed(2)} ${target}`, "success");
+        return rate;
     } catch (error) {
-        logAlert(`Error fetching exchange rate: ${error.message}`, "error");
+        logMessage(`Error fetching exchange rate: ${error.message}`, "error");
         return null;
     }
 }
 
-// Convert USD to MYR
-async function convertToMYR(priceInUSD) {
-    const rateToMYR = await fetchExchangeRate();
-    if (!rateToMYR) return null;
-    const priceInMYR = priceInUSD * rateToMYR;
-    logAlert(`Converted price to MYR: ${priceInMYR.toFixed(2)} MYR/oz`, "success");
-    return priceInMYR;
+// Convert Gold Price to User-Selected Currency
+async function convertGoldPrice(priceInUSD) {
+    const rate = await fetchExchangeRate("USD", userPreferences.currency);
+    if (!rate) return null;
+
+    const convertedPrice = priceInUSD * rate;
+    logMessage(
+        `Gold price converted: ${priceInUSD} USD = ${convertedPrice.toFixed(2)} ${userPreferences.currency}`,
+        "success"
+    );
+    return convertedPrice;
 }
 
 // Update Gold Price on the Page
 async function updateGoldPrice() {
-    const priceInUSD = await fetchGoldPrice();
-    if (!priceInUSD) {
-        goldPriceElement.textContent = "N/A";
-        return;
-    }
-
-    let priceToDisplay = `${priceInUSD.toFixed(2)} USD/oz`;
-
-    // Convert to MYR if selected
-    if (userPreferences.currency === "MYR") {
-        const priceInMYR = await convertToMYR(priceInUSD);
-        if (priceInMYR) {
-            priceToDisplay = `${priceInMYR.toFixed(2)} MYR/oz`;
-        } else {
-            logAlert("Unable to convert to MYR.", "warning");
+    try {
+        const goldPriceInUSD = await scrapeGoldPrice();
+        if (!goldPriceInUSD) {
+            goldPriceElement.textContent = "N/A";
+            lastUpdatedElement.textContent = "Failed to update.";
+            return;
         }
-    }
 
-    // Update UI
-    goldPriceElement.textContent = priceToDisplay;
+        let displayPrice = `${goldPriceInUSD.toFixed(2)} USD/oz`;
+
+        // Convert price if user-selected currency is not USD
+        if (userPreferences.currency !== "USD") {
+            const convertedPrice = await convertGoldPrice(goldPriceInUSD);
+            if (convertedPrice) {
+                displayPrice = `${convertedPrice.toFixed(2)} ${userPreferences.currency}/oz`;
+            } else {
+                logMessage("Failed to convert gold price. Showing USD price.", "warning");
+            }
+        }
+
+        // Update DOM Elements
+        goldPriceElement.textContent = displayPrice;
+        lastUpdatedElement.textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+
+        logMessage("Gold price updated successfully.", "success");
+    } catch (error) {
+        logMessage(`Error updating gold price: ${error.message}`, "error");
+    }
 }
 
 // Auto-Refresh Mechanism
 let autoRefreshInterval;
+function startAutoRefresh() {
+    clearInterval(autoRefreshInterval);
 
-function restartAutoRefresh() {
-    if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-
-    logAlert(`Setting auto-refresh to ${userPreferences.refreshRate} minutes.`);
-    autoRefreshInterval = setInterval(() => {
-        logAlert("Auto-refresh triggered.");
-        updateGoldPrice();
-    }, userPreferences.refreshRate * 60000);
+    logMessage(`Auto-refresh set to ${userPreferences.refreshRate} minutes.`, "info");
+    autoRefreshInterval = setInterval(updateGoldPrice, userPreferences.refreshRate * 60000);
 
     // Fetch immediately
     updateGoldPrice();
 }
 
-// Handle User Preference Change
-currencySelector.addEventListener("change", () => {
-    logAlert(`Currency changed to ${userPreferences.currency}. Refreshing price...`);
-    updateGoldPrice();
-});
+// Log System Integration
+function logMessage(message, type = "info") {
+    const logContainer = document.getElementById("alerts-container") || createLogContainer();
+    const logEntry = document.createElement("div");
+    logEntry.className = `log log-${type}`;
+    logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+    logContainer.appendChild(logEntry);
+    logContainer.scrollTop = logContainer.scrollHeight;
 
-// Initialize Live Price Updates
-function initializeLivePrice() {
-    logAlert("Initializing live price updates...");
-    updateGoldPrice();
-    restartAutoRefresh();
+    // Auto-remove logs after 10 seconds
+    setTimeout(() => logEntry.remove(), 10000);
 }
 
-// Start Live Price Updates
+// Create Log Container if Missing
+function createLogContainer() {
+    const container = document.createElement("div");
+    container.id = "alerts-container";
+    document.body.appendChild(container);
+    return container;
+}
+
+// Initialization
+function initializeLivePrice() {
+    logMessage("Initializing live gold price updates...", "info");
+    updateGoldPrice();
+    startAutoRefresh();
+}
+
+// Start Script
 initializeLivePrice();
