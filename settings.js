@@ -1,4 +1,4 @@
-// settings.js - Advanced Settings Management (250 lines)
+// settings.js - Advanced Settings Management
 
 // DOM Elements
 const settingsToggle = document.getElementById("settings-toggle");
@@ -6,22 +6,35 @@ const settingsPanel = document.getElementById("settings-panel");
 const themeToggle = document.getElementById("theme-toggle");
 const currencySelector = document.getElementById("currency-selector");
 const refreshRateInput = document.getElementById("refresh-rate");
-const logsContainer = document.getElementById("logs-container");
+const saveSettingsButton = document.getElementById("save-settings");
+const clearLogsButton = document.getElementById("clear-logs");
 
 // User Preferences (Defaults)
 const userPreferences = {
     theme: "light",
     currency: "USD",
-    refreshRate: 5, // in minutes
+    refreshRate: 5, // minutes
 };
 
 // Log Messages to UI
 function logMessage(message, type = "info") {
-    const logEntry = document.createElement("p");
-    logEntry.className = `log-${type}`;
+    const logContainer = document.getElementById("alerts-container") || createLogContainer();
+    const logEntry = document.createElement("div");
+    logEntry.className = `log log-${type}`;
     logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-    logsContainer.appendChild(logEntry);
-    logsContainer.scrollTop = logsContainer.scrollHeight; // Auto-scroll
+    logContainer.appendChild(logEntry);
+    logContainer.scrollTop = logContainer.scrollHeight;
+
+    // Auto-remove logs after 10 seconds
+    setTimeout(() => logEntry.remove(), 10000);
+}
+
+// Create Log Container
+function createLogContainer() {
+    const container = document.createElement("div");
+    container.id = "alerts-container";
+    document.body.appendChild(container);
+    return container;
 }
 
 // Save Preferences to localStorage
@@ -30,7 +43,7 @@ function savePreferences() {
         localStorage.setItem("goldAnalyzerPreferences", JSON.stringify(userPreferences));
         logMessage("Preferences saved successfully.", "success");
     } catch (error) {
-        logMessage("Failed to save preferences: " + error.message, "error");
+        logMessage("Error saving preferences: " + error.message, "error");
     }
 }
 
@@ -42,11 +55,11 @@ function loadPreferences() {
             Object.assign(userPreferences, savedPreferences);
             logMessage("Preferences loaded successfully.", "success");
         } else {
-            logMessage("No preferences found, using defaults.", "warning");
+            logMessage("No preferences found. Using defaults.", "warning");
         }
         applyPreferences();
     } catch (error) {
-        logMessage("Failed to load preferences: " + error.message, "error");
+        logMessage("Error loading preferences: " + error.message, "error");
     }
 }
 
@@ -65,7 +78,14 @@ function applyPreferences() {
     logMessage("Preferences applied successfully.");
 }
 
-// Theme Toggle Handler
+// Toggle Settings Panel Visibility
+settingsToggle.addEventListener("click", () => {
+    const isHidden = settingsPanel.getAttribute("aria-hidden") === "true";
+    settingsPanel.setAttribute("aria-hidden", !isHidden);
+    logMessage(`Settings panel ${isHidden ? "opened" : "closed"}.`);
+});
+
+// Handle Theme Change
 themeToggle.addEventListener("change", () => {
     userPreferences.theme = themeToggle.checked ? "dark" : "light";
     savePreferences();
@@ -73,7 +93,7 @@ themeToggle.addEventListener("change", () => {
     logMessage(`Theme changed to ${userPreferences.theme}.`);
 });
 
-// Currency Selector Handler
+// Handle Currency Change
 currencySelector.addEventListener("change", () => {
     const selectedCurrency = currencySelector.value;
     userPreferences.currency = selectedCurrency;
@@ -81,35 +101,35 @@ currencySelector.addEventListener("change", () => {
     logMessage(`Currency changed to ${selectedCurrency}.`);
 });
 
-// Refresh Rate Input Handler
+// Handle Refresh Rate Change
 refreshRateInput.addEventListener("change", () => {
     const rate = parseInt(refreshRateInput.value, 10);
     if (rate >= 1 && rate <= 60) {
         userPreferences.refreshRate = rate;
         savePreferences();
-        logMessage(`Refresh rate changed to ${rate} minutes.`);
+        logMessage(`Refresh rate updated to ${rate} minutes.`);
     } else {
         logMessage("Invalid refresh rate. Must be between 1 and 60 minutes.", "error");
         refreshRateInput.value = userPreferences.refreshRate;
     }
 });
 
-// Settings Panel Toggle
-settingsToggle.addEventListener("click", () => {
-    const isHidden = settingsPanel.getAttribute("aria-hidden") === "true";
-    settingsPanel.setAttribute("aria-hidden", !isHidden);
-    logMessage(`Settings panel ${isHidden ? "opened" : "closed"}.`);
+// Save Settings Button
+saveSettingsButton.addEventListener("click", () => {
+    savePreferences();
+    logMessage("Settings saved manually.", "success");
+});
+
+// Clear Logs Button
+clearLogsButton.addEventListener("click", () => {
+    const logContainer = document.getElementById("alerts-container");
+    if (logContainer) logContainer.innerHTML = "";
+    logMessage("Logs cleared.", "info");
 });
 
 // Advanced Error Handling
 window.addEventListener("error", (event) => {
-    logMessage(`Global Error: ${event.message}`, "error");
-});
-
-// Clear Logs (Optional)
-document.getElementById("clear-logs").addEventListener("click", () => {
-    logsContainer.innerHTML = "";
-    logMessage("Logs cleared.");
+    logMessage(`Global error: ${event.message}`, "error");
 });
 
 // Utility: Validate Preferences
@@ -132,7 +152,7 @@ function validatePreferences() {
     }
 
     if (valid) {
-        logMessage("Preferences validated successfully.");
+        logMessage("Preferences validated successfully.", "success");
     }
 
     return valid;
@@ -154,5 +174,5 @@ function initializeSettings() {
     }
 }
 
-// Initialization
+// Initialize on Load
 initializeSettings();
