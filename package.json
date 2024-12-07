@@ -1,0 +1,14 @@
+{
+  "name": "gold-price-analyzer",
+  "version": "1.0.0",
+  "description": "Gold Price Analyzer with Puppeteer Scraper",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^20.2.1",
+    "cors": "^2.8.5"
+  }
+}
