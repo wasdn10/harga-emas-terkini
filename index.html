@@ -3,14 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Live Gold Prices with Advanced Technical Analysis and Historical Data">
-    <meta name="keywords" content="Gold, Prices, Technical Analysis, Historical Data, RSI, MACD, SMA">
+    <meta name="description" content="Advanced Gold Price Analyzer with Live Data, Technical Indicators, and News">
+    <meta name="keywords" content="Gold Prices, Live Data, Technical Analysis, Indicators, RSI, MACD, SMA">
     <meta name="author" content="Your Name">
-    <title>Live Gold Prices with Technical Analysis</title>
+    <title>Advanced Gold Price Analyzer</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="favicon.ico">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/technicalindicators"></script>
 </head>
 <body>
     <!-- Header Section -->
@@ -19,28 +16,39 @@
             <h1>Gold Price Analyzer</h1>
         </div>
         <nav>
-            <button id="settings-toggle">Settings</button>
+            <ul class="nav-links">
+                <li><a href="#live-price">Live Price</a></li>
+                <li><a href="#chart">Chart</a></li>
+                <li><a href="#technical-analysis">Indicators</a></li>
+                <li><a href="#news">Market News</a></li>
+                <li><a href="#historical-data">Historical Data</a></li>
+            </ul>
+            <button id="settings-toggle">⚙ Settings</button>
         </nav>
     </header>
 
     <!-- Sidebar Settings Panel -->
     <aside id="settings-panel" aria-hidden="true">
         <h2>Settings</h2>
-        <form>
-            <label for="theme-toggle">Theme:</label>
-            <input type="checkbox" id="theme-toggle"> Dark Mode
-
-            <label for="currency-selector">Currency:</label>
-            <select id="currency-selector">
-                <option value="USD" selected>USD</option>
-                <option value="MYR">MYR</option>
-                <option value="EUR">EUR</option>
-            </select>
-
-            <label for="refresh-rate">Refresh Interval (minutes):</label>
-            <input type="number" id="refresh-rate" value="5" min="1" max="60">
-
-            <button type="submit">Save</button>
+        <form id="settings-form">
+            <div>
+                <label for="theme-toggle">Theme:</label>
+                <input type="checkbox" id="theme-toggle"> Dark Mode
+            </div>
+            <div>
+                <label for="currency-selector">Currency:</label>
+                <select id="currency-selector">
+                    <option value="USD" selected>USD</option>
+                    <option value="MYR">MYR</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                </select>
+            </div>
+            <div>
+                <label for="refresh-rate">Refresh Interval (minutes):</label>
+                <input type="number" id="refresh-rate" value="5" min="1" max="60">
+            </div>
+            <button type="button" id="save-settings">Save Settings</button>
         </form>
         <button id="clear-logs">Clear Logs</button>
     </aside>
@@ -52,55 +60,81 @@
             <h2>Live Gold Price</h2>
             <div id="price-container">
                 <p>Current Price: <span id="gold-price">Loading...</span></p>
+                <p>Last Updated: <span id="last-updated">Loading...</span></p>
             </div>
         </section>
 
         <!-- Historical Chart Section -->
         <section id="chart">
             <h2>Historical Gold Prices</h2>
-            <canvas id="price-chart"></canvas>
+            <div id="chart-container">
+                <canvas id="price-chart"></canvas>
+                <div id="chart-controls">
+                    <button data-period="7">Last 7 Days</button>
+                    <button data-period="30" class="active">Last 30 Days</button>
+                    <button data-period="365">Last 1 Year</button>
+                    <button id="export-csv">Export Data</button>
+                </div>
+            </div>
         </section>
 
         <!-- Technical Indicators Section -->
         <section id="technical-analysis">
             <h2>Technical Indicators</h2>
-            <div id="indicators">
+            <div id="indicators-container">
                 <ul>
                     <li id="rsi">RSI: Loading...</li>
                     <li id="macd">MACD: Loading...</li>
                     <li id="sma">SMA: Loading...</li>
+                    <li id="bollinger">Bollinger Bands: Loading...</li>
                 </ul>
+                <form id="indicator-settings">
+                    <div>
+                        <label for="rsi-period">RSI Period:</label>
+                        <input type="number" id="rsi-period" value="14" min="1" max="50">
+                    </div>
+                    <div>
+                        <label for="sma-period">SMA Period:</label>
+                        <input type="number" id="sma-period" value="30" min="1" max="365">
+                    </div>
+                    <div>
+                        <label for="bollinger-period">Bollinger Period:</label>
+                        <input type="number" id="bollinger-period" value="20" min="1" max="100">
+                    </div>
+                    <div>
+                        <label>Indicators:</label>
+                        <input type="checkbox" id="rsi-toggle" checked> RSI
+                        <input type="checkbox" id="macd-toggle" checked> MACD
+                        <input type="checkbox" id="sma-toggle" checked> SMA
+                        <input type="checkbox" id="bollinger-toggle" checked> Bollinger Bands
+                    </div>
+                </form>
             </div>
         </section>
 
-        <!-- Alerts Section -->
-        <section id="alerts">
-            <h2>Notifications</h2>
-            <div id="alerts-container"></div>
-        </section>
-
-        <!-- News Section -->
-        <section id="news-updates">
-            <h2>Gold Market News</h2>
+        <!-- Market News Section -->
+        <section id="news">
+            <h2>Market News</h2>
             <ul id="news-list">
                 <li>Loading latest news...</li>
             </ul>
         </section>
 
-        <!-- Historical Data Table -->
+        <!-- Historical Data Table Section -->
         <section id="historical-data">
-            <h2>Gold Price Table</h2>
+            <h2>Historical Gold Prices</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Date</th>
                         <th>Price (USD)</th>
                         <th>Price (MYR)</th>
+                        <th>Price (EUR)</th>
                     </tr>
                 </thead>
                 <tbody id="historical-table">
                     <tr>
-                        <td colspan="3">Loading data...</td>
+                        <td colspan="4">Loading data...</td>
                     </tr>
                 </tbody>
             </table>
@@ -109,7 +143,7 @@
 
     <!-- Footer Section -->
     <footer>
-        <p>© 2024 Gold Price Analyzer. Powered by Open APIs.</p>
+        <p>&copy; 2024 Gold Price Analyzer. Powered by Public Data Sources.</p>
     </footer>
 
     <!-- Scripts -->
@@ -117,5 +151,6 @@
     <script src="livePrice.js"></script>
     <script src="chart.js"></script>
     <script src="indicators.js"></script>
+    <script src="scraper.js"></script>
 </body>
 </html>
