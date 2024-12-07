@@ -1,46 +1,36 @@
-// chart.js - Interactive Historical Chart with Filters (250 Lines)
+// chart.js - Interactive Historical Chart with Advanced Features
 
 // DOM Elements
-const chartCanvas = document.getElementById("price-chart").getContext("2d");
-const filterButtons = document.createElement("div");
-filterButtons.id = "chart-filters";
-filterButtons.innerHTML = `
-    <button data-period="7">Last 7 Days</button>
-    <button data-period="30" class="active">Last 30 Days</button>
-    <button data-period="365">Last 1 Year</button>
-    <button id="export-csv">Export Data</button>
-`;
-document.getElementById("chart").appendChild(filterButtons);
+const ctx = document.getElementById("price-chart").getContext("2d");
+const chartControls = document.getElementById("chart-controls");
+const exportCsvButton = document.getElementById("export-csv");
 
-// Chart.js Plugins (Zoom and Pan)
-Chart.register(Chart.Zoom);
-
-// Configuration
+// Default Configuration
 let goldChart;
-let currentPeriod = 30; // Default period: 30 days
+let currentPeriod = 30; // Default to 30 days of historical data
 
 // Fetch Historical Data
 async function fetchHistoricalData(period) {
-    logAlert(`Fetching historical data for the last ${period} days...`);
+    logMessage(`Fetching historical data for the last ${period} days...`, "info");
+
     try {
         const endDate = new Date().toISOString().split("T")[0];
-        const startDate = new Date(Date.now() - period * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+        const startDate = new Date(Date.now() - period * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0];
 
-        const response = await fetch(
-            `https://www.example.com/historical-data?start_date=${startDate}&end_date=${endDate}`
-        ); // Replace with the real URL
+        const response = await fetch(`/api/historical-data?start=${startDate}&end=${endDate}`);
         if (!response.ok) throw new Error("Failed to fetch historical data.");
 
         const data = await response.json();
-        const processedData = data.map((entry) => ({
-            date: entry.date,
-            price: parseFloat(entry.price),
-        }));
+        logMessage(`Fetched ${data.length} data points successfully.`, "success");
 
-        logAlert(`Fetched ${processedData.length} data points successfully.`, "success");
-        return processedData;
+        return data.map(entry => ({
+            date: entry.date,
+            price: entry.price,
+        }));
     } catch (error) {
-        logAlert(`Error fetching historical data: ${error.message}`, "error");
+        logMessage(`Error fetching historical data: ${error.message}`, "error");
         return [];
     }
 }
@@ -48,18 +38,20 @@ async function fetchHistoricalData(period) {
 // Render Chart
 async function renderChart(period) {
     const data = await fetchHistoricalData(period);
+
     if (!data.length) {
-        logAlert("No data available for the selected period.", "warning");
+        logMessage("No historical data available for the selected period.", "warning");
         return;
     }
 
-    const labels = data.map((entry) => entry.date);
-    const prices = data.map((entry) => entry.price);
+    const labels = data.map(entry => entry.date);
+    const prices = data.map(entry => entry.price);
 
     // Destroy existing chart if present
     if (goldChart) goldChart.destroy();
 
-    goldChart = new Chart(chartCanvas, {
+    // Create new chart
+    goldChart = new Chart(ctx, {
         type: "line",
         data: {
             labels: labels,
@@ -96,20 +88,48 @@ async function renderChart(period) {
                         mode: "x",
                     },
                 },
+                tooltip: {
+                    callbacks: {
+                        label: context => `Price: ${context.raw.toFixed(2)} ${userPreferences.currency}`,
+                    },
+                },
             },
         },
     });
 
-    logAlert("Chart rendered successfully.", "success");
+    logMessage("Chart rendered successfully.", "success");
 }
 
+// Export Data as CSV
+exportCsvButton.addEventListener("click", async () => {
+    const data = await fetchHistoricalData(currentPeriod);
+
+    if (!data.length) {
+        logMessage("No data available to export.", "warning");
+        return;
+    }
+
+    const csvContent = "Date,Price\n" + data.map(d => `${d.date},${d.price}`).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `gold_prices_${currentPeriod}_days.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    logMessage("Historical data exported as CSV successfully.", "success");
+});
+
 // Handle Filter Buttons
-document.getElementById("chart-filters").addEventListener("click", async (event) => {
+chartControls.addEventListener("click", async event => {
     const button = event.target;
     const period = parseInt(button.getAttribute("data-period"), 10);
 
     if (period) {
-        document.querySelectorAll("#chart-filters button").forEach((btn) => btn.classList.remove("active"));
+        document.querySelectorAll("#chart-controls button").forEach(btn => btn.classList.remove("active"));
         button.classList.add("active");
 
         currentPeriod = period;
@@ -117,33 +137,31 @@ document.getElementById("chart-filters").addEventListener("click", async (event)
     }
 });
 
-// Export Data as CSV
-document.getElementById("export-csv").addEventListener("click", async () => {
-    const data = await fetchHistoricalData(currentPeriod);
-    if (!data.length) {
-        logAlert("No data available to export.", "warning");
-        return;
-    }
+// Log Messages
+function logMessage(message, type = "info") {
+    const logContainer = document.getElementById("alerts-container") || createLogContainer();
+    const logEntry = document.createElement("div");
+    logEntry.className = `log log-${type}`;
+    logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+    logContainer.appendChild(logEntry);
+    logContainer.scrollTop = logContainer.scrollHeight;
 
-    const csvContent = "Date,Price\n" + data.map((entry) => `${entry.date},${entry.price}`).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
+    // Auto-remove logs after 10 seconds
+    setTimeout(() => logEntry.remove(), 10000);
+}
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `gold_prices_${currentPeriod}_days.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    logAlert("Data exported successfully as CSV.", "success");
-});
+// Create Log Container if Missing
+function createLogContainer() {
+    const container = document.createElement("div");
+    container.id = "alerts-container";
+    document.body.appendChild(container);
+    return container;
+}
 
 // Initialization
 function initializeChart() {
-    logAlert("Initializing chart...");
+    logMessage("Initializing historical chart...", "info");
     renderChart(currentPeriod);
 }
 
 initializeChart();
-
